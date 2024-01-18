@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Mejores Hamburguesas Smash en Madrid Centro</title>
+
+    <!-- Mapbox References -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Style -->
+    <style>
+      #map {
+        height: 100vh;
+      }
+      .map-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        padding: 10px;
+      }
+      .marker {
+        background-image: url("marker-icon.png");
+        background-size: cover;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="map-overlay">
+      <h1>Mejores Hamburguesas Smash en Madrid Centro</h1>
+      <!-- Map controls go here -->
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Behaviour logic goes here -->
+    <script>
+      // Opens a new map instance
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiY29tZXJhdG9wZSIsImEiOiJjbDk1andtNXcwMmY5M29tOGZld3I1dDZkIn0.NWEJCBAqqcakEgtRyFl79g";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/comeratope/cl95k7yk3001a17lahdb6qfvx",
+        center: [-3.70379, 40.416775],
+        zoom: 13,
+      });
+
+      // Add zoom and rotation controls to the map
+      map.addControl(new mapboxgl.NavigationControl());
+
+      // Event listener for the map 'load' event
+      map.on("load", function () {
+        // Add the data source
+        map.addSource("burger-places", {
+          type: "vector",
+          url: "mapbox://comeratope.clrjbw05q1y931umvsgdev4kl-8bzqt",
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50,
+        });
+
+        // Add the clustered layer to the map
+        map.addLayer({
+          'id': "clusters",
+          'type': "circle",
+          'source': "burger-places",
+          'source-layer': "burger-madrid",
+          'filter': ["has", "point_count"],
+          'paint': {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#51bbd6",
+              100,
+              "#f1f075",
+              750,
+              "#f28cb1",
+            ],
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              20,
+              100,
+              30,
+              750,
+              40,
+            ],
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
