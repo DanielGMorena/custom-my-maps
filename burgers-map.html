@@ -47,7 +47,7 @@
 
   <body>
     <div class="map-overlay">
-      <h1>Mejores Hamburguesas Smash en Madrid Centro</h1>
+      <!--<h1>Mejores Hamburguesas Smash en Madrid Centro</h1>-->
       <!-- Map controls go here -->
     </div>
 
@@ -72,10 +72,10 @@
       map.on("load", function () {
         // Add the data source
         map.addSource("burger-places", {
-          type: "vector",
-          url: "mapbox://comeratope.clrjbw05q1y931umvsgdev4kl-8bzqt",
+          type: "geojson",
+          data: "https://storage.googleapis.com/comeratope-data-maps/madrid-center-smash-burger.geojson",
           cluster: true,
-          clusterMaxZoom: 14,
+          clusterMaxZoom: 16,
           clusterRadius: 50,
         });
 
@@ -84,29 +84,56 @@
           'id': "clusters",
           'type': "circle",
           'source': "burger-places",
-          'source-layer': "burger-madrid",
           'filter': ["has", "point_count"],
           'paint': {
             "circle-color": [
               "step",
               ["get", "point_count"],
               "#51bbd6",
-              100,
+              3,
               "#f1f075",
-              750,
+              5,
               "#f28cb1",
             ],
             "circle-radius": [
               "step",
               ["get", "point_count"],
-              20,
-              100,
-              30,
-              750,
-              40,
+              20, 2,
+              30, 3,
+              40, 6,
+              50, 10,
+              70, 20
             ],
           },
         });
+
+        // Add the text layer to the map
+        map.addLayer({
+          id: "unclustered-point",
+          type: "circle",
+          source: "burger-places",
+          filter: ["!", ["has", "point_count"]],
+          paint: {
+            'circle-color': '#11b4da',
+            'circle-radius': 4,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+          }
+        })
+
+        // cluster-count
+        map.addLayer({
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'burger-places',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': ['get', 'point_count_abbreviated'],
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+          }
+        });
+
       });
     </script>
   </body>
