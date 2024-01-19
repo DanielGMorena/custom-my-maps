@@ -120,16 +120,25 @@
         // Add the text layer to the map
         map.addLayer({
           id: "unclustered-point",
-          type: "circle",
+          type: "symbol",
           source: "burger-places",
           filter: ["!", ["has", "point_count"]],
+          layout: {
+            "icon-image": 'fast-food',
+            'text-field': ['get', 'displayName_text'],
+            'text-size': 12,
+            'text-font': [
+              'Permanent Marker Regular',
+              'Arial Unicode MS Bold'
+            ],
+            'text-offset': [0, 2],
+          },
           paint: {
-            'circle-color': '#11b4da',
-            'circle-radius': 4,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff'
+            'text-color': '#ffffff',
+            'text-halo-color': '#000000',
+            'text-halo-width': 1
           }
-        })
+        });
 
         // cluster-count
         map.addLayer({
@@ -139,11 +148,52 @@
           filter: ['has', 'point_count'],
           layout: {
             'text-field': ['get', 'point_count_abbreviated'],
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12
+            'text-font': [
+              'Permanent Marker Regular',
+              'Arial Unicode MS Bold'],
+            'text-size': 12,
+            'text-halo-width': 1
+          },
+          paint: {
+            'text-color': '#ffffff',
+            'text-halo-color': '#000000',
+            'text-halo-width': 1
           }
         });
 
+        // Create a popup, but don't add it to the map yet.
+        const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+        });
+
+        // Click on featured places
+        map.on('mouseenter', 'unclustered-point', (e) => {
+          // Copy coordinates array
+          const coordinates = e.features[0].geometry.coordinates.slice();
+          const description = e.features[0].properties.description;
+
+          // Map zoop to point clicked
+          while(Math.abs(e.lngLat.lng - coordinates[0] > 180)){
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+          }
+
+          // Instantiates a new popup
+          popup.setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        map.on('mouseenter', 'places', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'places', () => {
+          map.getCanvas().style.cursor = '';
+          popup.remove();
+        });
       });
     </script>
   </body>
